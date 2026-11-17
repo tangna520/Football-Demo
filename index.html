@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#062b2e">
-<title>FOOTBALL BANKROLL</title>
+<title>FOOTBALL BANKROLL · V2.8 云端兼容版</title>
 <style>
 :root{--bg:#06272b;--panel:#0b3438;--panel2:#08282c;--line:#1b5557;--muted:#8eaaad;--text:#e4f2f0;--green:#14d6a0;--green2:#087f6d;--red:#ff7777;--gold:#e8c879}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif}
@@ -36,22 +36,97 @@ canvas{width:100%;height:210px;display:block}
 .bottom{position:fixed;bottom:0;left:0;right:0;background:rgba(4,30,33,.96);backdrop-filter:blur(14px);padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid #17474a;display:flex;justify-content:center}.bottom span{font-size:11px;color:#78999b}
 .hidden{display:none!important}.toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:#d9fff3;color:#003c32;padding:10px 16px;border-radius:30px;font-size:13px;box-shadow:0 5px 25px #0006;z-index:9;opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1}
 @media(min-width:600px){.app{padding:28px 24px}.money{font-size:38px}}
+
+/* tactile interaction states */
+button{transition:transform .12s ease,filter .12s ease,background-color .12s ease,box-shadow .12s ease; -webkit-tap-highlight-color:transparent}
+button:active{transform:translateY(2px) scale(.975);filter:brightness(.82);box-shadow:inset 0 2px 5px #001d1a88}
+button:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+button:disabled{opacity:.58;cursor:wait;transform:none}
+.primary{box-shadow:0 4px 0 #05634f,0 7px 16px #001b1880}
+.primary:active{box-shadow:0 1px 0 #05634f;transform:translateY(3px) scale(.985)}
+.secondary:active,.choice button:active,nav button:active{background:#126456;color:#fff}
+#introNotice{border:1px solid #367b68;background:#0b3a35;border-radius:16px;padding:14px;margin:12px 0;color:#d9f6eb;font-size:12px;line-height:1.75}
+.role-pill{display:inline-block;padding:3px 8px;border-radius:10px;background:#174c42;color:#8ef0cc;margin-left:5px}
+.today-section{margin:0 0 22px;padding:14px 14px 4px;border:1px solid #269d82;border-radius:20px;background:linear-gradient(145deg,rgba(20,214,160,.10),rgba(11,52,56,.92));box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.today-section .section-title{margin:2px 0 14px}
+.today-section .section-title h2{font-size:21px;font-weight:850;letter-spacing:.5px;color:#65e8bd;text-shadow:0 1px 12px rgba(20,214,160,.18)}
+.today-section #todayCount{font-size:13px;font-weight:800;color:#9ff5d8;background:#104b40;border:1px solid #267d68;border-radius:20px;padding:6px 11px;min-width:48px;text-align:center}
+.today-section #todayCount.is-empty{color:#a5b5b6;background:#263b3d;border-color:#53686a}
+.today-section .card{background:rgba(5,39,42,.76);border-color:#286c63;cursor:pointer;transition:border-color .15s,background .15s}
+.today-section .card:active{background:#104347}
+.today-section .record strong{font-size:15px;font-weight:800}
+.today-section .match-index{display:inline-flex;align-items:center;justify-content:center;min-width:25px;height:25px;padding:0 6px;margin-right:8px;border-radius:8px;background:#176b59;border:1px solid #35bd94;color:#d9fff1;font-size:12px;font-weight:850;vertical-align:1px}
+.today-section .today-summary{font-size:15px;font-weight:600;color:var(--text);line-height:1.65;margin-top:10px;overflow-wrap:anywhere}
+.today-section .record-extra{display:none;margin-top:10px;padding-top:10px;border-top:1px solid #286c63;color:#b7d0ce;font-size:13px;line-height:1.8}
+.today-section .card.expanded .record-extra{display:block}
+.today-section .card .expand-hint{font-size:11px;color:var(--muted);margin-top:8px}
+.today-section .card.expanded .expand-hint{display:none}
+
+.referral-card{border:1px solid #269d82;background:linear-gradient(145deg,rgba(20,214,160,.10),rgba(11,52,56,.96));}
+.referral-card h2{color:#65e8bd;margin:0;font-size:20px}.referral-url{padding:11px;background:#06282c;border:1px solid #28585b;border-radius:12px;overflow-wrap:anywhere;font-size:12px;color:#bfe9df;margin:9px 0}
+.referral-rule{font-size:13px;line-height:1.8;color:#d7e9e5}.referral-rule li{margin:2px 0}.referral-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}.referral-metrics .stat{background:#08282c}
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="brand"><div class="mark">↗</div><div><h1>FOOTBALL<br>BANKROLL</h1><div class="sub">足球赛事数据研究 · 模拟资金管理 · 风险控制与学习演示</div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px"><div class="offline" id="syncStatus">云端连接中…</div><button class="secondary" id="authButton" style="padding:8px 11px;font-size:12px">管理员登录</button></div></header>
+<header><div class="brand"><div class="mark">↗</div><div><h1>FOOTBALL<br>BANKROLL</h1><div class="sub">足球资金管理 · 纪律控制 · 长期复盘</div></div></div><div class="offline">云端数据 · 账号同步</div></header>
+<div id="authGate" class="card" style="margin-top:18px">
+ <div class="section-title"><h2>账号登录</h2><span class="hint">云端统一数据</span></div>
+ <div class="field"><label>邮箱</label><input id="authEmail" type="email" autocomplete="username" placeholder="注册/登录邮箱"></div>
+ <div class="field"><label>密码</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="至少 8 位"></div>
+ <div class="grid2"><button class="primary" id="loginBtn">登录</button><button class="secondary" id="registerBtn">注册账号</button></div>
+ <div class="note">首次注册后请到邮箱完成验证。会员由管理员人工审核开通。请勿在公共设备保存密码。</div>
+ <div class="field hidden" style="margin-top:14px"><label>云端配置（已预设）</label><input id="sbUrl" placeholder="Supabase Project URL"><input id="sbKey" style="margin-top:8px" placeholder="Supabase anon / publishable key"></div>
+ <button class="secondary hidden" id="connectBtn" style="width:100%">保存云端配置并连接</button>
+</div>
+<div id="introNotice">
+ <b>使用说明与风险提示</b><br>
+ 本工具用于个人资金记录、预算纪律和历史数据复盘。数据可能存在录入或来源误差；历史记录不代表未来表现，不保证收益，也不构成投资或投注建议。请独立判断并遵守所在地法律法规。购买任何软件服务前，请先核对服务内容、期限、价格、退款规则及隐私政策。
+</div>
+<div id="accountBar" class="card hidden"><div class="record"><div><strong id="whoami">已登录</strong><small id="memberStatus">会员状态</small></div><button class="secondary" id="logoutBtn">退出</button></div></div>
+<div id="memberReferral" class="card referral-card hidden">
+ <div class="section-title"><h2>邀请好友 · 会员优惠</h2><span class="pill">直接邀请</span></div>
+ <div class="hint">我的专属邀请链接</div><div class="referral-url" id="referralInfo">登录后生成</div>
+ <button class="secondary" id="copyReferral" style="width:100%">复制专属邀请链接</button>
+ <div class="referral-metrics"><div class="stat"><small>有效付费邀请</small><b id="activeInviteCount">查询中</b></div><div class="stat"><small>下一期参考月费</small><b id="referralNextPrice">查询中</b></div></div>
+ <div class="referral-rule"><b>邀请好友 · 会员优惠规则</b><br>每成功邀请1名新用户注册并购买正式会员，邀请人的下一期月费减半。
+ <ul><li><b>1名有效付费邀请：</b>月费享5折。</li><li><b>2名有效付费邀请：</b>月费享2.5折。</li><li><b>3名有效付费邀请：</b>月费享1.25折。</li><li><b>以此类推：</b>每增加1名有效付费邀请，月费继续减半。</li><li><b>最低收费：</b>当计算金额低于1元时，不再收取费用，相当于完全免费。</li></ul>
+ 有效邀请仅计算通过本人专属链接注册、实际完成付款且符合活动规则的直接邀请用户。<br>被邀请用户会员到期且未续费后，不再计入有效付费人数，邀请人的优惠随之重新计算。<br>具体优惠以会员结算页面显示为准。
+ </div>
+</div>
+<div id="adminPanel" class="card hidden">
+ <div class="section-title"><h2>管理员后台</h2><span class="hint">仅管理员可操作</span></div>
+ <div class="field"><label>收款二维码图片</label><input id="qrUpload" type="file" accept="image/*"></div>
+ <div id="qrPreview" class="note">尚未配置收款二维码</div>
+ <div class="field"><label>会员套餐名称</label><input id="planName" value="月度会员"></div>
+ <div class="field"><label>套餐价格（元）</label><input id="planPrice" type="number" min="0" step="0.01" value="99"></div>
+ <button class="secondary" id="savePlan">保存套餐设置</button>
+ <div class="section-title"><h2 style="font-size:15px">邀请优惠管理</h2><span class="hint">仅管理员可操作</span></div>
+ <label style="display:flex;align-items:center;gap:10px"><input id="referralEnabled" type="checkbox" style="width:20px;min-height:20px"> 开启邀请优惠</label>
+ <div class="note">开启后，系统按直接邀请且当前会员有效的用户数量计算下一期参考月费；关闭后恢复套餐原价。付款仍由管理员人工核实。</div>
+ <button class="secondary" id="saveReferralSettings">保存邀请优惠设置</button>
+ <div id="adminReferralDetails" class="note">邀请统计加载中…</div>
+ <div class="section-title"><h2 style="font-size:15px">订单审核</h2></div><div id="adminOrders" class="note">加载中…</div>
+ <div class="section-title"><h2 style="font-size:15px">注册用户</h2></div><div id="adminUsers" class="note">加载中…</div>
+ <div class="section-title"><h2 style="font-size:15px">邀请统计</h2></div><div id="adminReferrals" class="note">加载中…</div><div class="section-title"><h2 style="font-size:15px">操作日志</h2></div><div id="adminLogs" class="note">加载中…</div>
+</div>
+<div id="memberShop" class="card hidden"><div class="section-title"><h2>会员服务</h2></div><div id="planDisplay"></div><div id="payQr"></div><div class="field"><label>支付宝订单号 / 付款备注（付款后填写）</label><input id="payReference" placeholder="请填写可核对的付款信息"></div><button class="primary" id="submitOrder">提交付款信息，等待人工核实</button><div id="myOrders" class="note"></div></div>
 <div class="balance">
  <div class="eyebrow">当前资金余额（元）</div><div class="money" id="balance">¥20,000.00</div>
  <div class="stats"><div class="stat"><small>累计盈亏</small><b id="profit">¥0.00</b></div><div class="stat"><small>记录场次</small><b id="count">0</b></div><div class="stat"><small>本月胜率</small><b id="winrate">—</b></div></div>
 </div>
 <nav>
-<button class="active" data-tab="records">记录</button><button data-tab="monthly">月度结算</button><button data-tab="analysis">数据分析</button><button data-tab="rules" class="admin-only">规则设置</button><button data-tab="notice">使用说明</button>
+<button class="active" data-tab="records">记录</button><button data-tab="monthly">月度结算</button><button data-tab="analysis">数据分析</button><button data-tab="rules">规则设置</button>
 </nav>
 
 <section id="records">
- <div class="section-title"><h2>新增投注记录</h2><span class="hint">保存后可再次编辑</span></div>
- <div class="card admin-only">
+ <div class="today-section">
+  <div class="section-title"><h2>今日比赛场次</h2><span class="hint" id="todayCount">0 场</span></div>
+  <div id="recordList"></div>
+ </div>
+ <div id="recordEditorPanel">
+ <div class="section-title"><h2>新增投注记录</h2><span class="hint">仅管理员或指定编辑者可新增、修改</span></div>
+ <div class="card">
   <div class="field"><label>比赛名称</label><input id="match" placeholder="例如：主队 vs 客队"></div>
   <div class="grid2">
    <div class="field"><label>比赛日期</label><input id="date" type="date"></div>
@@ -69,8 +144,7 @@ canvas{width:100%;height:210px;display:block}
   <button class="primary" id="save">保存记录</button>
   <button class="secondary hidden" id="cancelEdit" style="width:100%;margin-top:8px">取消编辑</button>
  </div>
- <div class="section-title"><h2>最近记录</h2><span class="hint">点击编辑可修改</span></div>
- <div id="recordList"></div>
+ </div>
 </section>
 
 <section id="monthly" class="hidden">
@@ -90,7 +164,7 @@ canvas{width:100%;height:210px;display:block}
  <div class="card"><label>结论表现统计</label><div id="conclusionStats"></div></div>
 </section>
 
-<section id="rules" class="hidden admin-only">
+<section id="rules" class="hidden">
  <div class="section-title"><h2>资金与纪律规则</h2><span class="hint">可随时调整，修改留痕</span></div>
  <div class="card">
   <div class="rule-row"><label>初始资金（元）</label><input id="rCapital" type="number" min="0"></div>
@@ -101,213 +175,99 @@ canvas{width:100%;height:210px;display:block}
   <div class="rule-row"><label>月盈利提现比例（%）</label><input id="rWithdraw" type="number" min="0" max="100"></div>
   <div class="rule-row"><label>风险暂停线（%）</label><input id="rRisk" type="number" min="1" max="100"></div>
   <button class="primary" id="saveRules">保存规则</button>
-  <div class="note">单注金额按当前资金余额 × 固定单注比例自动计算。比例只在规则设置中调整，不需要每场重复填写。所有数据仅保存在当前设备浏览器中。</div>
+  <div class="note">单注金额按当前资金余额 × 固定单注比例自动计算。比例只在规则设置中调整，不需要每场重复填写。共享数据保存在 Supabase 云端；仅管理员可以修改。</div>
  </div>
  <div class="card"><div class="section-title"><h2 style="font-size:15px">规则修改记录</h2></div><div id="ruleHistory" class="empty">暂无修改记录</div></div>
  <div class="card"><div class="section-title"><h2 style="font-size:15px">数据备份</h2></div><div class="grid2"><button class="secondary" id="export">导出备份</button><button class="secondary" id="importBtn">导入备份</button></div><input id="importFile" class="hidden" type="file" accept="application/json"></div>
 </section>
-
-<section id="notice" class="hidden">
- <div class="section-title"><h2>使用说明与免责声明</h2><span class="hint">请阅读后使用</span></div>
- <div class="card">
-  <h3 style="margin:0 0 10px;font-size:16px;color:var(--green)">一、软件用途</h3>
-  <p class="note">FOOTBALL BANKROLL 用于足球赛事数据研究、模拟资金管理、风险控制、记录整理及历史复盘。页面中的资金余额、单注金额、盈亏及趋势统计，属于用户录入或系统计算的模拟管理数据。</p>
-  <h3 style="margin:18px 0 10px;font-size:16px;color:var(--green)">二、赛事数据与分析结果</h3>
-  <p class="note">本软件可能展示真实赛事资料、赔率及赛果，并根据用户选择生成统计标签和分析结果。相关结果仅反映输入数据及预设规则下的计算结果，不代表确定性判断，不保证准确率或收益，也不应被理解为真实投注指令。历史表现不代表未来结果。</p>
-  <h3 style="margin:18px 0 10px;font-size:16px;color:var(--green)">三、模拟资金与风险提示</h3>
-  <p class="note">本软件不处理真实投注资金，不接受投注，不代为下注，不进行赌资收付或比赛输赢结算。模拟记录及模拟盈亏不代表真实交易或实际收益。足球赛事存在不确定性，任何统计模型和分析结果均可能出现误差。</p>
-  <h3 style="margin:18px 0 10px;font-size:16px;color:var(--green)">四、服务期限与收费说明</h3>
-  <p class="note">如提供收费服务，费用按用户选择的服务期限收取，对应期限内的软件访问、功能演示及教学服务。具体价格、服务期限、续费及终止规则应在购买前清楚公示。服务费不与比赛结果、模拟盈亏、投注金额或任何投注收益挂钩，也不构成投注资金或赌资。</p>
-  <h3 style="margin:18px 0 10px;font-size:16px;color:var(--green)">五、用户责任与合规说明</h3>
-  <p class="note">用户应遵守所在地法律法规，不得利用本软件组织或参与违法活动。运营者应确保实际提供的功能、宣传内容、收费项目与本说明一致。免责声明不能替代法律要求，也不能使实际违法的经营活动合法化。</p>
-  <h3 style="margin:18px 0 10px;font-size:16px;color:var(--green)">六、数据保存</h3>
-  <p class="note">当前版本的数据保存在本机浏览器。清理浏览器数据或更换设备可能导致记录丢失，请定期使用数据备份功能导出文件。</p>
- </div>
-</section>
-
 </div>
-<section id="authPanel" class="hidden" style="position:fixed;inset:0;background:#000b;z-index:20;display:flex;align-items:center;justify-content:center;padding:18px">
- <div class="card" style="width:100%;max-width:420px;background:#0b3438">
-  <div class="section-title"><h2>管理员登录</h2><button class="secondary" id="closeAuth">关闭</button></div>
-  <div class="field"><label>管理员邮箱</label><input id="authEmail" type="email" autocomplete="username" placeholder="管理员邮箱"></div>
-  <div class="field"><label>密码</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="管理员密码"></div>
-  <button class="primary" id="doLogin">登录管理后台</button>
-  <p class="note">普通访问者无需登录，只能查看公开数据。请勿将管理员密码分享给他人。</p>
-  <button class="secondary hidden" id="doLogout" style="width:100%;margin-top:8px">退出管理员登录</button>
- </div>
-</section>
-<div class="bottom"><span>FOOTBALL BANKROLL · 模拟资金管理与数据研究 · 请定期导出备份</span></div><div class="toast" id="toast"></div>
+<div class="bottom"><span>FOOTBALL BANKROLL · 云端账号版 · 管理员统一维护数据</span></div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $=id=>document.getElementById(id);
-const defaultRules={capital:20000,rate:5,daily:5,monthly:150,loss:3,withdraw:30,risk:80};
 const SUPABASE_URL='https://puqckhvkanhdknyhppxv.supabase.co';
-const SUPABASE_ANON_KEY='sb_publishable_hcy9eVXQDmb-4y0zR2uZPQ_vjMZPU9E';
-let supabaseClient=null, isAdmin=false, cloudReady=false, saveTimer=null, currentAdminId=null;
-let data=JSON.parse(localStorage.getItem('fb_data')||'{"records":[],"ruleHistory":[]}');
-let rules={...defaultRules,...JSON.parse(localStorage.getItem('fb_rules')||'{}')};
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_hcy9eVXQDmb-4y0zR2uZPQ_vjMZPU9E';
+const defaultRules={capital:20000,rate:5,daily:5,monthly:150,loss:3,withdraw:30,risk:80};
+let data={records:[],ruleHistory:[]};
+let rules={...defaultRules};
 let editing=null;
 const signalNames=['刘胜','历史','智能','即初'];
-function persist(){
- localStorage.setItem('fb_data',JSON.stringify(data));
- localStorage.setItem('fb_rules',JSON.stringify(rules));
- if(!supabaseClient || !isAdmin || !cloudReady) return;
- clearTimeout(saveTimer);
- $('syncStatus').textContent='正在同步…';
- saveTimer=setTimeout(saveCloudState,500);
-}
+function persist(){ if(window.fbCloudReady) return saveCloudState(); }
 function money(n){return '¥'+Number(n||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function localDateString(d=new Date()){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+
 function toast(s){$('toast').textContent=s;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1800)}
 function currentBalance(){return Number(rules.capital)+data.records.reduce((a,r)=>a+Number(r.pnl||0),0)}
 function conclusion(vals){let ups=vals.filter(v=>v==='上').length;if(vals.length!==4)return '等待选择';return ups===4?'强上':ups===3?'偏上':ups===2?'放弃':ups===1?'偏下':'强下'}
 function initSignals(){ $('signals').innerHTML=signalNames.map((n,i)=>`<div class="field"><label>${n}</label><div class="choice"><button type="button" data-s="${i}" data-v="上">上</button><button type="button" data-s="${i}" data-v="下">下</button></div></div>`).join('');$('signals').querySelectorAll('button').forEach(b=>b.onclick=()=>{b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');updateConclusion()})}
 function getSignals(){return signalNames.map((_,i)=>document.querySelector(`#signals button.selected[data-s="${i}"]`)?.dataset.v||'')}
 function updateConclusion(){let c=conclusion(getSignals());$('conclusion').textContent=c;$('stake').value=(currentBalance()*Number(rules.rate)/100).toFixed(2)}
-function clearForm(){editing=null;['match','outcome','odds','pnl','memo'].forEach(id=>$(id).value='');$('date').value=new Date().toISOString().slice(0,10);$('signals').querySelectorAll('button').forEach(b=>b.classList.remove('selected'));$('conclusion').textContent='等待选择';$('stake').value=(currentBalance()*Number(rules.rate)/100).toFixed(2);$('save').textContent='保存记录';$('cancelEdit').classList.add('hidden')}
+function clearForm(){editing=null;['match','outcome','odds','pnl','memo'].forEach(id=>$(id).value='');$('date').value=localDateString();$('signals').querySelectorAll('button').forEach(b=>b.classList.remove('selected'));$('conclusion').textContent='等待选择';$('stake').value=(currentBalance()*Number(rules.rate)/100).toFixed(2);$('save').textContent='保存记录';$('cancelEdit').classList.add('hidden')}
 function render(){
- document.querySelectorAll('.admin-only').forEach(el=>el.classList.toggle('hidden',!isAdmin));
  let bal=currentBalance(),pnl=bal-Number(rules.capital),wins=data.records.filter(r=>r.outcome==='win').length,settled=data.records.filter(r=>r.outcome==='win'||r.outcome==='loss');
  $('balance').textContent=money(bal);$('profit').textContent=money(pnl);$('profit').style.color=pnl>=0?'var(--green)':'var(--red)';$('count').textContent=data.records.length;$('winrate').textContent=settled.length?(wins/settled.length*100).toFixed(1)+'%':'—';
- $('recordList').innerHTML=data.records.length? [...data.records].sort((a,b)=>b.date.localeCompare(a.date)).map(r=>`<div class="card"><div class="record"><div><strong>${esc(r.match||'未命名比赛')}</strong><small>${r.date} · ${r.conclusion} · 单注 ${money(r.stake)}</small></div><span class="pill ${r.outcome==='loss'?'loss':r.outcome==='push'?'neutral':''}">${r.outcome==='win'?'赢':r.outcome==='loss'?'输':r.outcome==='push'?'走水':'待结算'}</span></div><div class="note">刘胜 ${r.signals[0]} · 历史 ${r.signals[1]} · 智能 ${r.signals[2]} · 即初 ${r.signals[3]}　盈亏 ${money(r.pnl)}</div>${isAdmin?`<div class="actions"><button class="secondary" onclick="editRecord('${r.id}')">编辑</button><button class="secondary danger" onclick="deleteRecord('${r.id}')">删除</button></div>`:""}</div>`).join(''):'<div class="card empty">还没有投注记录</div>';
+ const todayRecords=[...data.records].filter(r=>r.date===localDateString()).sort((a,b)=>(b.created_at||b.id||'').toString().localeCompare((a.created_at||a.id||'').toString()));$('todayCount').textContent=todayRecords.length+' 场';$('todayCount').classList.toggle('is-empty',todayRecords.length===0);$('recordList').innerHTML=todayRecords.length?todayRecords.map((r,i)=>`<div class="card today-record-card" role="button" tabindex="0" aria-expanded="false" onclick="this.classList.toggle('expanded');this.setAttribute('aria-expanded',this.classList.contains('expanded'))" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><div class="record"><div><strong><span class="match-index">${i+1}</span>${esc(r.match||'未命名比赛')}</strong><small>${r.date} · ${esc(r.conclusion||'待判断')} · 单注 ${money(r.stake)}</small></div><span class="pill ${r.outcome==='loss'?'loss':r.outcome==='push'?'neutral':''}">${r.outcome==='win'?'赢':r.outcome==='loss'?'输':r.outcome==='push'?'走水':'待结算'}</span></div><div class="today-summary">刘胜 ${esc(r.signals?.[0]||'—')} · 历史 ${esc(r.signals?.[1]||'—')} · 智能 ${esc(r.signals?.[2]||'—')} · 即初 ${esc(r.signals?.[3]||'—')}　盈亏 ${money(r.pnl)}</div><div class="expand-hint">点击比赛卡片查看完整记录</div><div class="record-extra">比赛日期：${esc(r.date||'—')}<br>实际结果：${r.outcome==='win'?'赢':r.outcome==='loss'?'输':r.outcome==='push'?'走水':'待结算'}<br>自动结论：${esc(r.conclusion||'—')}<br>单注金额：${money(r.stake)}<br>赔率：${r.odds?esc(r.odds):'未填写'}<br>本场盈亏：${money(r.pnl)}<br>备注：${esc(r.memo||'无')}</div><div class="actions"><button class="secondary" onclick="event.stopPropagation();editRecord('${r.id}')">编辑</button><button class="secondary danger" onclick="event.stopPropagation();deleteRecord('${r.id}')">删除</button></div></div>`).join(''):'<div class="card empty">今日暂无比赛记录</div>';
  renderMonth();renderAnalysis();renderRules();
 }
+function applyRoleUI(){const canEdit=isAdmin||isEditor;const editorPanel=$('recordEditorPanel');if(editorPanel)editorPanel.classList.toggle('hidden',!canEdit);document.querySelectorAll('#save,#cancelEdit').forEach(b=>b.classList.toggle('hidden',!canEdit));document.querySelectorAll('#rules input,#saveRules,#export,#importBtn').forEach(el=>{el.disabled=!isAdmin;el.title=isAdmin?'管理员可修改规则及备份':'仅管理员可修改规则或导入导出';});document.querySelectorAll('.actions').forEach(el=>el.classList.toggle('hidden',!canEdit));}
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function saveRecord(){
  let vals=getSignals(),c=conclusion(vals);if(!$('match').value.trim()){toast('请填写比赛名称');return}if(vals.some(v=>!v)){toast('请完成四项判断');return}
- let rec={id:editing||String(Date.now()),match:$('match').value.trim(),date:$('date').value||new Date().toISOString().slice(0,10),outcome:$('outcome').value,signals:vals,conclusion:c,stake:Number($('stake').value||0),odds:Number($('odds').value||0),pnl:Number($('pnl').value||0),memo:$('memo').value};
+ let rec={id:editing||String(Date.now()),match:$('match').value.trim(),date:$('date').value||localDateString(),outcome:$('outcome').value,signals:vals,conclusion:c,stake:Number($('stake').value||0),odds:Number($('odds').value||0),pnl:Number($('pnl').value||0),memo:$('memo').value};
  if(editing){let i=data.records.findIndex(x=>x.id===editing);if(i>=0)data.records[i]=rec}else data.records.push(rec);
  persist();clearForm();render();toast('记录已保存');
 }
 function editRecord(id){let r=data.records.find(x=>x.id===id);if(!r)return;editing=id;$('match').value=r.match;$('date').value=r.date;$('outcome').value=r.outcome;$('odds').value=r.odds||'';$('pnl').value=r.pnl||'';$('memo').value=r.memo||'';r.signals.forEach((v,i)=>{let b=document.querySelector(`#signals button[data-s="${i}"][data-v="${v}"]`);if(b)b.classList.add('selected')});$('conclusion').textContent=r.conclusion;$('stake').value=r.stake;$('save').textContent='保存修改';$('cancelEdit').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})}
 function deleteRecord(id){if(!confirm('确定删除这条记录？'))return;data.records=data.records.filter(r=>r.id!==id);persist();render();toast('已删除')}
 function renderRules(){['capital','rate','daily','monthly','loss','withdraw','risk'].forEach(k=>{$('r'+({capital:'Capital',rate:'Rate',daily:'Daily',monthly:'Monthly',loss:'Loss',withdraw:'Withdraw',risk:'Risk'}[k])).value=rules[k]});$('ruleHistory').innerHTML=data.ruleHistory.length?[...data.ruleHistory].reverse().map(x=>`<div class="note">${x.time} · ${esc(x.text)}</div>`).join(''):'暂无修改记录'}
-function saveRules(){let old={...rules},v={capital:+$('rCapital').value,rate:+$('rRate').value,daily:+$('rDaily').value,monthly:+$('rMonthly').value,loss:+$('rLoss').value,withdraw:+$('rWithdraw').value,risk:+$('rRisk').value};if(v.rate<5||v.rate>15||v.withdraw<0||v.withdraw>100||v.risk<=0||v.risk>100||Object.values(v).some(n=>!Number.isFinite(n)||n<=0)){toast('请检查规则数值');return}rules=v;data.ruleHistory.push({time:new Date().toLocaleString(),text:`单注比例 ${old.rate}%→${v.rate}%；每日上限 ${old.daily}→${v.daily}；月上限 ${old.monthly}→${v.monthly}；连续亏损 ${old.loss}→${v.loss}；提现 ${old.withdraw}%→${v.withdraw}%；风险线 ${old.risk}%→${v.risk}%`});persist();render();updateConclusion();toast('规则已保存')}
+async function saveRules(){if(!isAdmin){toast('仅管理员可以修改规则');return;}let old={...rules},oldHistory=[...data.ruleHistory],v={capital:+$('rCapital').value,rate:+$('rRate').value,daily:+$('rDaily').value,monthly:+$('rMonthly').value,loss:+$('rLoss').value,withdraw:+$('rWithdraw').value,risk:+$('rRisk').value};if(v.rate<5||v.rate>15||v.withdraw<0||v.withdraw>100||v.risk<=0||v.risk>100||Object.values(v).some(n=>!Number.isFinite(n)||n<=0)){toast('请检查规则数值');return}rules=v;data.ruleHistory.push({time:new Date().toLocaleString(),text:`单注比例 ${old.rate}%→${v.rate}%；每日上限 ${old.daily}→${v.daily}；月上限 ${old.monthly}→${v.monthly}；连续亏损 ${old.loss}→${v.loss}；提现 ${old.withdraw}%→${v.withdraw}%；风险线 ${old.risk}%→${v.risk}%`});try{if(window.fbCloudReady)await saveCloudState();render();updateConclusion();toast('规则已保存并同步云端');}catch(e){rules=old;data.ruleHistory=oldHistory;renderRules();toast('规则保存失败：'+(e.message||e));}}
 function renderMonth(){let m=$('monthPick').value||new Date().toISOString().slice(0,7),rs=data.records.filter(r=>r.date.startsWith(m)),settled=rs.filter(r=>['win','loss'].includes(r.outcome)),w=settled.filter(r=>r.outcome==='win').length,p=rs.reduce((a,r)=>a+Number(r.pnl||0),0);$('mCount').textContent=rs.length;$('mRate').textContent=settled.length?(w/settled.length*100).toFixed(1)+'%':'—';$('mPnl').textContent=money(p);$('withdraw').textContent=money(Math.max(0,p)*rules.withdraw/100);$('monthList').innerHTML=rs.length?rs.map(r=>`<div class="card record"><div><strong>${esc(r.match)}</strong><small>${r.date} · ${r.conclusion}</small></div><b>${money(r.pnl)}</b></div>`).join(''):'<div class="card empty">该月份暂无记录</div>'}
 function draw(canvas,values,labels){let c=$(canvas),ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#28585b';ctx.lineWidth=1;for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(36,i*h/4);ctx.lineTo(w-12,i*h/4);ctx.stroke()}if(!values.length){ctx.fillStyle='#8eaaad';ctx.font='16px sans-serif';ctx.fillText('暂无足够数据',w/2-45,h/2);return}let min=Math.min(...values,0),max=Math.max(...values,1);if(max===min)max=min+1;ctx.strokeStyle='#14d6a0';ctx.lineWidth=3;ctx.beginPath();values.forEach((v,i)=>{let x=38+(w-58)*(values.length===1?.5:i/(values.length-1)),y=h-24-(v-min)/(max-min)*(h-52);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();values.forEach((v,i)=>{let x=38+(w-58)*(values.length===1?.5:i/(values.length-1)),y=h-24-(v-min)/(max-min)*(h-52);ctx.fillStyle='#65f0c4';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill()})}
 function renderAnalysis(){let rs=[...data.records].sort((a,b)=>a.date.localeCompare(b.date)),cum=0,vals=rs.map(r=>cum+=Number(r.pnl||0));draw('chart1',vals);let groups=['强上','偏上','放弃','偏下','强下'];let stats=groups.map(g=>{let a=rs.filter(r=>r.conclusion===g&&['win','loss'].includes(r.outcome)),w=a.filter(r=>r.outcome==='win').length;return {g,n:a.length,rate:a.length?(w/a.length*100).toFixed(1)+'%':'—'}});draw('chart2',stats.map(s=>s.n?parseFloat(s.rate):0));$('conclusionStats').innerHTML=stats.map(s=>`<div class="record" style="padding:9px 0;border-bottom:1px solid #1b5557"><span>${s.g} <small style="display:inline">${s.n}场已结算</small></span><b>${s.rate}</b></div>`).join('');$('signalStats').innerHTML=signalNames.map((n,i)=>{let up=rs.filter(r=>r.signals[i]==='上').length,down=rs.filter(r=>r.signals[i]==='下').length;return `<div class="record" style="padding:9px 0;border-bottom:1px solid #1b5557"><span>${n}</span><b>上 ${up}　下 ${down}</b></div>`}).join('')}
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x===b));['records','monthly','analysis','rules','notice'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.tab));if(b.dataset.tab==='analysis')renderAnalysis()});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x===b));['records','monthly','analysis','rules'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.tab));if(b.dataset.tab==='analysis')renderAnalysis()});
 $('save').onclick=saveRecord;$('cancelEdit').onclick=clearForm;$('saveRules').onclick=saveRules;$('monthPick').value=new Date().toISOString().slice(0,7);$('monthPick').onchange=renderMonth;
 $('export').onclick=()=>{let blob=new Blob([JSON.stringify({data,rules},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='football-bankroll-backup.json';a.click();URL.revokeObjectURL(a.href)};
 $('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{let x=JSON.parse(await e.target.files[0].text());if(!x.data||!x.rules)throw 0;data=x.data;rules=x.rules;persist();render();toast('备份导入成功')}catch{toast('备份文件格式不正确')}};
+
+// ---- Supabase cloud account layer ----
+let sb=null, session=null, profile=null, appConfig=null, isAdmin=false, isEditor=false, isSaving=false;
+const defaultPlan={name:'月度会员',price:99};
+function setAppVisible(on){['.balance','nav','#records','#monthly','#analysis','#rules'].forEach(sel=>document.querySelectorAll(sel).forEach(el=>el.classList.toggle('hidden',!on)));}
+function getClient(){if(!sb){const u=SUPABASE_URL||localStorage.getItem('fb_sb_url')||$('sbUrl').value.trim(),k=SUPABASE_PUBLISHABLE_KEY||localStorage.getItem('fb_sb_key')||$('sbKey').value.trim();if(!u||!k)throw Error('尚未配置 Supabase URL 和公开密钥');sb=window.supabase.createClient(u,k);}return sb;}
+async function cloudBoot(){try{$('sbUrl').value=SUPABASE_URL;$('sbKey').value=SUPABASE_PUBLISHABLE_KEY;getClient();const {data:{session:s}}=await sb.auth.getSession();session=s;if(session)await afterLogin();}catch(e){toast(e.message||'云端连接失败');}setAppVisible(!!session);}
+async function connectCloud(){try{const u=$('sbUrl').value.trim(),k=$('sbKey').value.trim();if(!u.startsWith('https://')||!k)throw Error('请填写正确的 Supabase URL 和 anon key');localStorage.setItem('fb_sb_url',u);localStorage.setItem('fb_sb_key',k);sb=null;getClient();toast('云端配置已保存，请登录');}catch(e){toast(e.message);}}
+async function registerUser(){try{const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||password.length<8)throw Error('请输入邮箱，密码至少 8 位');getClient();const {error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.href.split('#')[0]}});if(error)throw error;toast('注册请求已提交；如项目关闭邮箱验证，可直接登录；否则请先验证邮箱');}catch(e){toast(e.message||'注册失败');}}
+async function loginUser(){try{getClient();const {data:d,error}=await sb.auth.signInWithPassword({email:$('authEmail').value.trim(),password:$('authPassword').value});if(error)throw error;session=d.session;await afterLogin();}catch(e){toast(e.message||'登录失败');}}
+async function afterLogin(){const {data:p,error:pe}=await sb.from('profiles').select('*').eq('id',session.user.id).single();if(pe)throw pe;profile=p;isAdmin=p.role==='admin';isEditor=p.role==='editor';if(p.status==='blocked'){await sb.auth.signOut();throw Error('账号已被管理员停用');}const hasMember=!!(p.membership_until&&new Date(p.membership_until)>new Date());const hasTrial=!!(p.trial_until&&new Date(p.trial_until)>new Date());if(isAdmin||isEditor||hasMember||hasTrial){const {data:c,error:ce}=await sb.from('app_config').select('*').eq('id',1).single();if(ce)throw ce;appConfig=c;if(!c.payload?.data||!Array.isArray(c.payload.data.records)||!c.payload?.rules){throw Error('云端 app_config 数据结构不完整。为保护现有记录，已停止加载；没有写入或覆盖任何云端数据。');}data={records:c.payload.data.records,ruleHistory:Array.isArray(c.payload.data.ruleHistory)?c.payload.data.ruleHistory:[]};rules={...defaultRules,...c.payload.rules};window.fbCloudReady=true;}else{appConfig={payload:{}};window.fbCloudReady=false;}const {data:store}=await sb.from('storefront_config').select('*').eq('id',1).single();if(store)appConfig.payload={...(appConfig.payload||{}),...store.payload};setAppVisible(isAdmin||isEditor||hasMember||hasTrial);$('authGate').classList.add('hidden');$('accountBar').classList.remove('hidden');$('whoami').textContent=session.user.email+(isAdmin?' · 管理员':isEditor?' · 编辑者':'');$('memberStatus').textContent=isAdmin?'管理员':isEditor?'指定编辑者':hasMember?'会员有效期至 '+new Date(p.membership_until).toLocaleDateString():hasTrial?'免费体验至 '+new Date(p.trial_until).toLocaleDateString():'体验期已结束';if(!isAdmin&&!isEditor&&!hasMember&&!hasTrial){setAppVisible(false);$('memberShop').classList.remove('hidden');await loadShop();}else{$('memberShop').classList.add('hidden');}if(isAdmin){$('adminPanel').classList.remove('hidden');await loadAdmin();}else $('adminPanel').classList.add('hidden');$('referralInfo').textContent=location.origin+location.pathname+'?ref='+p.referral_code;$('memberReferral').classList.remove('hidden');await refreshReferralCard();if(isAdmin){const rp=store?.payload?.referral_program||{};$('referralEnabled').checked=rp.enabled!==false;}render();clearForm();applyRoleUI();}
+async function saveCloudState(){if(!sb||!session||(!isAdmin&&!isEditor)||isSaving)return;isSaving=true;try{let error;if(isAdmin){const payload={data,rules};({error}=await sb.from('app_config').update({payload,updated_by:session.user.id,updated_at:new Date().toISOString()}).eq('id',1));}else{({error}=await sb.rpc('editor_save_records',{p_records:data.records}));}if(error)throw error;}catch(e){toast('云端保存失败：'+e.message);}finally{isSaving=false;}}
+async function logoutUser(){if(sb)await sb.auth.signOut();session=null;profile=null;isAdmin=false;window.fbCloudReady=false;$('authGate').classList.remove('hidden');$('accountBar').classList.add('hidden');$('memberReferral').classList.add('hidden');$('adminPanel').classList.add('hidden');$('memberShop').classList.add('hidden');setAppVisible(false);}
+async function getReferralQuote(){const plan=appConfig?.payload?.plan||defaultPlan;const {data,error}=await sb.rpc('my_referral_discount',{p_base_price:Number(plan.price)||0});if(error)throw error;return data;}
+async function refreshReferralCard(){try{const url=location.origin+location.pathname+'?ref='+profile.referral_code;$('referralInfo').textContent=url;const q=await getReferralQuote();$('activeInviteCount').textContent=String(q.active_invites||0)+' 人';$('referralNextPrice').textContent='¥'+Number(q.next_price||0).toFixed(2);$('memberReferral').classList.remove('hidden');}catch(e){$('activeInviteCount').textContent='暂不可用';$('referralNextPrice').textContent='—';$('memberReferral').classList.remove('hidden');console.error('referral quote',e);}}
+async function loadShop(){const plan=appConfig?.payload?.plan||defaultPlan,qr=appConfig?.payload?.qr_url;let quote={next_price:Number(plan.price)||0,active_invites:0};try{quote=await getReferralQuote();}catch(e){console.warn(e);}$('planDisplay').textContent=plan.name+' · 原价 ¥'+Number(plan.price).toFixed(2)+' · 优惠后 ¥'+Number(quote.next_price).toFixed(2)+'（有效邀请 '+Number(quote.active_invites||0)+' 人）';$('payQr').innerHTML=qr?'<img src="'+esc(qr)+'" style="max-width:260px;width:100%;display:block;margin:14px auto;border-radius:12px">':'<div class="note">管理员尚未上传收款二维码</div>';const {data:orders}=await sb.from('orders').select('*').eq('user_id',session.user.id).order('created_at',{ascending:false});$('myOrders').textContent=(orders||[]).map(o=>'订单 '+o.id.slice(0,8)+' · ¥'+Number(o.amount).toFixed(2)+' · '+o.status+' · '+new Date(o.created_at).toLocaleString()).join('\n')||'暂无订单';}
+async function submitOrder(){try{if(!profile)throw Error('请先登录');const plan=appConfig?.payload?.plan||defaultPlan,ref=$('payReference').value.trim();if(!ref)throw Error('请填写付款信息');const quote=await getReferralQuote();const amount=Number(quote.next_price);const {error}=await sb.from('orders').insert({user_id:session.user.id,plan_name:plan.name,amount,payment_reference:ref,status:'pending_review',referral_code:profile.referred_by||null});if(error)throw error;$('payReference').value='';await loadShop();toast('已提交优惠后付款信息，等待管理员人工核实');}catch(e){toast(e.message);}}
+async function loadAdmin(){try{const {data:orders,error}=await sb.from('orders').select('id,user_id,plan_name,amount,payment_reference,status,created_at').order('created_at',{ascending:false}).limit(100);if(error)throw error;$('adminOrders').innerHTML=(orders||[]).map(o=>`<div class="note" style="border-bottom:1px solid #28585b;padding:8px 0">${o.id.slice(0,8)} · ${esc(o.plan_name)} ¥${o.amount} · ${esc(o.payment_reference||'')} · ${o.status} <button class="secondary" onclick="approveOrder('${o.id}','${o.user_id}')">确认到账并开通</button> <button class="secondary danger" onclick="rejectOrder('${o.id}')">拒绝</button></div>`).join('')||'暂无订单';const {data:users}=await sb.from('profiles').select('id,email,role,status,membership_until,created_at,referral_code,referred_by').order('created_at',{ascending:false}).limit(200);$('adminUsers').innerHTML=(users||[]).map(u=>`<div class="note" style="border-bottom:1px solid #28585b;padding:8px 0">${esc(u.email||u.id)} · ${u.role} · ${u.status} · 到期 ${u.membership_until||'未开通'} <button class="secondary" onclick="toggleUser('${u.id}','${u.status==='blocked'?'active':'blocked'}')">${u.status==='blocked'?'解封':'停用'}</button> <button class="secondary" onclick="setUserRole('${u.id}','${u.role==='editor'?'user':'editor'}')">${u.role==='editor'?'取消编辑权':'授予编辑权'}</button></div>`).join('')||'暂无用户';const {data:refs}=await sb.from('profiles').select('id,referred_by');$('adminReferrals').textContent='注册用户 '+(users||[]).length+' · 有邀请来源 '+(refs||[]).filter(x=>x.referred_by).length;const grouped={};(refs||[]).forEach(x=>{if(x.referred_by)grouped[x.referred_by]=(grouped[x.referred_by]||0)+1;});$('adminReferralDetails').textContent='直接邀请代码统计：'+(Object.entries(grouped).map(([k,v])=>k+'：'+v+'人').join('；')||'暂无邀请记录');const {data:logs}=await sb.from('audit_logs').select('*').order('created_at',{ascending:false}).limit(30);$('adminLogs').innerHTML=(logs||[]).map(l=>`<div class=\"note\">${new Date(l.created_at).toLocaleString()} · ${esc(l.action)} · ${esc(l.target_type||'')} ${esc(l.target_id||'')}</div>`).join('')||'暂无操作日志';}catch(e){$('adminOrders').textContent='后台数据读取失败：'+e.message;}}
+async function approveOrder(id,userId){try{const days=30;const {data:u,error}=await sb.from('profiles').select('membership_until').eq('id',userId).single();if(error)throw error;const base=u.membership_until&&new Date(u.membership_until)>new Date()?new Date(u.membership_until):new Date();base.setDate(base.getDate()+days);const {error:ue}=await sb.from('profiles').update({membership_until:base.toISOString(),status:'active'}).eq('id',userId);if(ue)throw ue;const {error:oe}=await sb.from('orders').update({status:'paid',reviewed_by:session.user.id,reviewed_at:new Date().toISOString()}).eq('id',id);if(oe)throw oe;await loadAdmin();toast('已确认订单并开通 30 天会员');}catch(e){toast(e.message);}}
+async function rejectOrder(id){const {error}=await sb.from('orders').update({status:'rejected',reviewed_by:session.user.id,reviewed_at:new Date().toISOString()}).eq('id',id);if(error)toast(error.message);else{await loadAdmin();toast('订单已拒绝');}}
+async function setUserRole(id,role){try{const {error}=await sb.rpc('admin_set_user_role',{p_user_id:id,p_role:role});if(error)throw error;await loadAdmin();toast(role==='editor'?'已授予编辑权限':'已取消编辑权限');}catch(e){toast('权限修改失败：'+e.message);}}
+async function toggleUser(id,status){const {error}=await sb.from('profiles').update({status}).eq('id',id);if(error)toast(error.message);else{await loadAdmin();toast('用户状态已更新');}}
+async function savePlan(){try{if(!isAdmin)throw Error('无管理员权限');const payload={...(appConfig.payload||{}),plan:{name:$('planName').value.trim()||'会员',price:Number($('planPrice').value)}};const {error}=await sb.from('storefront_config').update({payload,updated_by:session.user.id,updated_at:new Date().toISOString()}).eq('id',1);if(error)throw error;appConfig.payload={...(appConfig.payload||{}),...payload};toast('套餐设置已保存');}catch(e){toast(e.message);}}
+async function uploadQr(file){try{if(!file||!isAdmin) return;const path='payment/qr-'+Date.now()+'.'+(file.name.split('.').pop()||'png');const {error}=await sb.storage.from('payment-assets').upload(path,file,{upsert:true,contentType:file.type});if(error)throw error;const {data:u}=sb.storage.from('payment-assets').getPublicUrl(path);const payload={...(appConfig.payload||{}),qr_url:u.publicUrl};const {error:ce}=await sb.from('storefront_config').update({payload,updated_by:session.user.id,updated_at:new Date().toISOString()}).eq('id',1);if(ce)throw ce;appConfig.payload={...(appConfig.payload||{}),...payload};$('qrPreview').innerHTML='<img src="'+esc(u.publicUrl)+'" style="max-width:180px;width:100%">';toast('收款二维码已更新');}catch(e){toast('上传失败：'+e.message);}}
+async function saveReferralSettings(){try{if(!isAdmin)throw Error('仅管理员可操作');const payload={...(appConfig.payload||{}),referral_program:{...(appConfig.payload?.referral_program||{}),enabled:$('referralEnabled').checked}};const {error}=await sb.from('storefront_config').update({payload,updated_by:session.user.id,updated_at:new Date().toISOString()}).eq('id',1);if(error)throw error;appConfig.payload={...(appConfig.payload||{}),...payload};toast('邀请优惠设置已保存');await refreshReferralCard();}catch(e){toast('保存失败：'+e.message);}}
+$('copyReferral').onclick=async()=>{const t=$('referralInfo').textContent;if(!t||t==='登录后生成')return;try{await navigator.clipboard.writeText(t);toast('邀请链接已复制');}catch(e){toast('复制失败，请长按链接手动复制');}};
+$('saveReferralSettings').onclick=saveReferralSettings;
+$('loginBtn').onclick=loginUser;$('registerBtn').onclick=registerUser;$('connectBtn').onclick=connectCloud;$('logoutBtn').onclick=logoutUser;$('submitOrder').onclick=submitOrder;$('savePlan').onclick=savePlan;$('qrUpload').onchange=e=>uploadQr(e.target.files[0]);
+window.approveOrder=approveOrder;window.rejectOrder=rejectOrder;window.toggleUser=toggleUser;window.setUserRole=setUserRole;
+// Restrict ordinary accounts to read-only views; server RLS is the actual security boundary.
+const originalSaveRecord=saveRecord,originalDeleteRecord=deleteRecord,originalSaveRules=saveRules;
+saveRecord=function(){if(!isAdmin&&!isEditor){toast('当前账号只有浏览权限');return;}const day=$('date').value||localDateString(),month=day.slice(0,7);if(!editing){const dailyCount=data.records.filter(r=>r.date===day).length,monthlyCount=data.records.filter(r=>r.date.startsWith(month)).length;if(dailyCount>=Number(rules.daily)){toast('已达到每日投注记录上限');return;}if(monthlyCount>=Number(rules.monthly)){toast('已达到每月投注场次上限');return;}const today=data.records.filter(r=>r.date===day);let streak=0;for(let i=today.length-1;i>=0;i--){if(today[i].outcome==='loss')streak++;else break;}if(streak>=Number(rules.loss)){toast('已达到单日连续亏损停止场次');return;}}originalSaveRecord();};
+deleteRecord=function(id){if(!isAdmin&&!isEditor){toast('当前账号只有浏览权限');return;}originalDeleteRecord(id);};
+saveRules=async function(){if(!isAdmin){toast('仅管理员可以修改规则');return;}await originalSaveRules();};
+const originalEditRecord=editRecord;editRecord=function(id){if(!isAdmin&&!isEditor){toast('当前账号只有浏览权限');return;}originalEditRecord(id);};
+// Referral code is captured at registration and linked by the database trigger.
+const originalRegister=registerUser;registerUser=async function(){const ref=new URLSearchParams(location.search).get('ref');try{getClient();const email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||password.length<8)throw Error('请输入邮箱，密码至少 8 位');const {error}=await sb.auth.signUp({email,password,options:{data:{referral_code:ref||null},emailRedirectTo:location.href.split('#')[0]}});if(error)throw error;toast('注册请求已提交；如项目关闭邮箱验证，可直接登录；否则请先验证邮箱');}catch(e){toast(e.message);}};$('registerBtn').onclick=registerUser;
+document.querySelectorAll('button').forEach(btn=>{btn.addEventListener('click',()=>{btn.classList.add('tap-feedback');setTimeout(()=>btn.classList.remove('tap-feedback'),160);},{passive:true});});
+cloudBoot();
+
 initSignals();clearForm();render();
-let remoteUpdatedAt=null, isSaving=false, pollTimer=null;
-function setAdminView(){
- $('authButton').textContent=isAdmin?'管理员已登录':'管理员登录';
- $('syncStatus').textContent=cloudReady?(isAdmin?'云端管理模式':'云端公开只读'):'云端连接失败';
- document.querySelectorAll('.admin-only').forEach(el=>el.classList.toggle('hidden',!isAdmin));
- $('doLogout').classList.toggle('hidden',!isAdmin);
- if(!isAdmin && !$('rules').classList.contains('hidden')){
-   $('rules').classList.add('hidden');
-   document.querySelector('[data-tab="records"]').click();
- }
- render();
-}
-function showAuth(){ $('authPanel').classList.remove('hidden'); $('doLogout').classList.toggle('hidden',!isAdmin); }
-$('authButton').onclick=showAuth;
-$('closeAuth').onclick=()=>$('authPanel').classList.add('hidden');
-$('doLogout').onclick=async()=>{
- if(supabaseClient) await supabaseClient.auth.signOut();
- isAdmin=false; currentAdminId=null;
- $('authPanel').classList.add('hidden');
- setAdminView();
- toast('已退出管理员登录');
-};
-async function readProfile(userId){
- const {data:p,error}=await supabaseClient.from('profiles').select('id,email,role,status').eq('id',userId).single();
- if(error) throw error;
- return p;
-}
-async function loadSharedConfig(showStatus=true){
- const {data:row,error}=await supabaseClient.from('app_config').select('id,payload,updated_at').eq('id',1).single();
- if(error) throw error;
- if(!row || !row.payload) throw new Error('app_config 中没有 id=1 的配置记录');
- const payload=row.payload;
- if(!payload.data || !payload.rules) throw new Error('app_config.payload 缺少 data 或 rules');
- data={records:Array.isArray(payload.data.records)?payload.data.records:[],ruleHistory:Array.isArray(payload.data.ruleHistory)?payload.data.ruleHistory:[]};
- rules={...defaultRules,...payload.rules};
- remoteUpdatedAt=row.updated_at||null;
- localStorage.setItem('fb_data',JSON.stringify(data));
- localStorage.setItem('fb_rules',JSON.stringify(rules));
- if(showStatus) $('syncStatus').textContent=isAdmin?'云端管理模式':'云端公开只读';
- render();
-}
-async function saveCloudState(){
- if(!supabaseClient || !cloudReady || !isAdmin || !currentAdminId || isSaving) return;
- isSaving=true;
- try{
-  const payload={data,rules};
-  const {data:updated,error}=await supabaseClient.from('app_config')
-   .update({payload,updated_by:currentAdminId,updated_at:new Date().toISOString()})
-   .eq('id',1).select('id,updated_at').maybeSingle();
-  if(error) throw error;
-  if(!updated) throw new Error('没有更新任何记录，请检查管理员权限和 app_config 的 UPDATE 策略');
-  remoteUpdatedAt=updated.updated_at||new Date().toISOString();
-  $('syncStatus').textContent='云端已同步';
- }catch(e){
-  $('syncStatus').textContent='云端保存失败';
-  toast('云端保存失败：'+e.message);
- }finally{isSaving=false;}
-}
-$('doLogin').onclick=async()=>{
- try{
-  const {data:authData,error}=await supabaseClient.auth.signInWithPassword({email:$('authEmail').value.trim(),password:$('authPassword').value});
-  if(error) throw error;
-  const p=await readProfile(authData.user.id);
-  if(p.role!=='admin' || p.status!=='active'){
-   await supabaseClient.auth.signOut();
-   throw new Error('该账号不是有效的管理员账号');
-  }
-  currentAdminId=authData.user.id; isAdmin=true;
-  await loadSharedConfig(false);
-  $('authPanel').classList.add('hidden');
-  setAdminView();
-  toast('管理员登录成功');
- }catch(e){toast('登录失败：'+e.message);}
-};
-async function bootCloud(){
- try{
-  if(!window.supabase || !window.supabase.createClient) throw new Error('Supabase 客户端加载失败，请检查网络');
-  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  // Public visitors read only the shared app_config row. RLS must permit anon SELECT.
-  await loadSharedConfig(false);
-  cloudReady=true;
-  const {data:{session}}=await supabaseClient.auth.getSession();
-  if(session?.user){
-   try{
-    const p=await readProfile(session.user.id);
-    if(p.role==='admin' && p.status==='active'){isAdmin=true;currentAdminId=session.user.id;}
-   }catch(e){console.warn('Profile lookup:',e.message);}
-  }
-  setAdminView();
-  $('syncStatus').textContent=isAdmin?'云端管理模式':'云端公开只读';
-  // Poll for changes so every visitor sees the same shared data without requiring a manual refresh.
-  if(pollTimer) clearInterval(pollTimer);
-  pollTimer=setInterval(async()=>{
-   if(document.hidden || isSaving) return;
-   try{
-    const {data:row,error}=await supabaseClient.from('app_config').select('payload,updated_at').eq('id',1).single();
-    if(error) throw error;
-    if(row?.updated_at && row.updated_at!==remoteUpdatedAt){
-     const payload=row.payload||{};
-     data={records:Array.isArray(payload.data?.records)?payload.data.records:[],ruleHistory:Array.isArray(payload.data?.ruleHistory)?payload.data.ruleHistory:[]};
-     rules={...defaultRules,...(payload.rules||{})};
-     remoteUpdatedAt=row.updated_at;
-     localStorage.setItem('fb_data',JSON.stringify(data));
-     localStorage.setItem('fb_rules',JSON.stringify(rules));
-     render();
-     $('syncStatus').textContent=isAdmin?'云端管理模式':'数据已更新';
-    }
-   }catch(e){console.warn('Cloud refresh:',e.message);}
-  },15000);
- }catch(e){
-  cloudReady=false;
-  $('syncStatus').textContent='云端连接失败';
-  console.error('Supabase init:',e);
-  toast('云端连接失败：'+e.message);
-  // Keep the interface visible but clearly mark that shared cloud data is unavailable.
-  render();
- }
-}
-bootCloud();
 </script>
 </body></html>
