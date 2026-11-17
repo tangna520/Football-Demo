@@ -149,8 +149,12 @@ let rules={...defaultRules,...JSON.parse(localStorage.getItem('fb_rules')||'{}')
 let editing=null;
 const signalNames=['刘胜','历史','智能','即初'];
 function persist(){
- localStorage.setItem('fb_data',JSON.stringify(data));localStorage.setItem('fb_rules',JSON.stringify(rules));
- if(supabaseClient && isAdmin && cloudReady){clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{const {error}=await supabaseClient.from('bankroll_state').update({payload:{data,rules},updated_at:new Date().toISOString()}).eq('id',1).eq('owner_id',currentAdminId);if(error){$('syncStatus').textContent='云端保存失败';toast('云端保存失败：'+error.message)}else $('syncStatus').textContent='云端已同步'},350)}
+ localStorage.setItem('fb_data',JSON.stringify(data));
+ localStorage.setItem('fb_rules',JSON.stringify(rules));
+ if(!supabaseClient || !isAdmin || !cloudReady) return;
+ clearTimeout(saveTimer);
+ $('syncStatus').textContent='正在同步…';
+ saveTimer=setTimeout(saveCloudState,500);
 }
 function money(n){return '¥'+Number(n||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function toast(s){$('toast').textContent=s;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1800)}
@@ -186,31 +190,124 @@ $('save').onclick=saveRecord;$('cancelEdit').onclick=clearForm;$('saveRules').on
 $('export').onclick=()=>{let blob=new Blob([JSON.stringify({data,rules},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='football-bankroll-backup.json';a.click();URL.revokeObjectURL(a.href)};
 $('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{try{let x=JSON.parse(await e.target.files[0].text());if(!x.data||!x.rules)throw 0;data=x.data;rules=x.rules;persist();render();toast('备份导入成功')}catch{toast('备份文件格式不正确')}};
 initSignals();clearForm();render();
+let remoteUpdatedAt=null, isSaving=false, pollTimer=null;
 function setAdminView(){
  $('authButton').textContent=isAdmin?'管理员已登录':'管理员登录';
- $('syncStatus').textContent=cloudReady?(isAdmin?'云端管理模式':'云端只读展示'):'本地预览模式';
+ $('syncStatus').textContent=cloudReady?(isAdmin?'云端管理模式':'云端公开只读'):'云端连接失败';
  document.querySelectorAll('.admin-only').forEach(el=>el.classList.toggle('hidden',!isAdmin));
- if(!isAdmin && $('rules').classList.contains('hidden')===false){$('rules').classList.add('hidden');document.querySelector('[data-tab="records"]').click()}
+ $('doLogout').classList.toggle('hidden',!isAdmin);
+ if(!isAdmin && !$('rules').classList.contains('hidden')){
+   $('rules').classList.add('hidden');
+   document.querySelector('[data-tab="records"]').click();
+ }
  render();
 }
 function showAuth(){ $('authPanel').classList.remove('hidden'); $('doLogout').classList.toggle('hidden',!isAdmin); }
-$('authButton').onclick=showAuth;$('closeAuth').onclick=()=>$('authPanel').classList.add('hidden');
-$('doLogout').onclick=async()=>{if(supabaseClient)await supabaseClient.auth.signOut();isAdmin=false;$('authPanel').classList.add('hidden');setAdminView()};
-$('doLogin').onclick=async()=>{if(!supabaseClient){toast('云端尚未连接');return}let {data:authData,error}=await supabaseClient.auth.signInWithPassword({email:$('authEmail').value.trim(),password:$('authPassword').value});if(error){toast('登录失败：'+error.message);return}const check=await supabaseClient.from('bankroll_state').select('owner_id').eq('id',1).maybeSingle();if(check.error||!check.data||check.data.owner_id!==authData.user.id){await supabaseClient.auth.signOut();toast('该账号不是此资金管理数据的管理员');return}currentAdminId=authData.user.id;isAdmin=true;$('authPanel').classList.add('hidden');setAdminView();toast('管理员登录成功')};
+$('authButton').onclick=showAuth;
+$('closeAuth').onclick=()=>$('authPanel').classList.add('hidden');
+$('doLogout').onclick=async()=>{
+ if(supabaseClient) await supabaseClient.auth.signOut();
+ isAdmin=false; currentAdminId=null;
+ $('authPanel').classList.add('hidden');
+ setAdminView();
+ toast('已退出管理员登录');
+};
+async function readProfile(userId){
+ const {data:p,error}=await supabaseClient.from('profiles').select('id,email,role,status').eq('id',userId).single();
+ if(error) throw error;
+ return p;
+}
+async function loadSharedConfig(showStatus=true){
+ const {data:row,error}=await supabaseClient.from('app_config').select('id,payload,updated_at').eq('id',1).single();
+ if(error) throw error;
+ if(!row || !row.payload) throw new Error('app_config 中没有 id=1 的配置记录');
+ const payload=row.payload;
+ if(!payload.data || !payload.rules) throw new Error('app_config.payload 缺少 data 或 rules');
+ data={records:Array.isArray(payload.data.records)?payload.data.records:[],ruleHistory:Array.isArray(payload.data.ruleHistory)?payload.data.ruleHistory:[]};
+ rules={...defaultRules,...payload.rules};
+ remoteUpdatedAt=row.updated_at||null;
+ localStorage.setItem('fb_data',JSON.stringify(data));
+ localStorage.setItem('fb_rules',JSON.stringify(rules));
+ if(showStatus) $('syncStatus').textContent=isAdmin?'云端管理模式':'云端公开只读';
+ render();
+}
+async function saveCloudState(){
+ if(!supabaseClient || !cloudReady || !isAdmin || !currentAdminId || isSaving) return;
+ isSaving=true;
+ try{
+  const payload={data,rules};
+  const {data:updated,error}=await supabaseClient.from('app_config')
+   .update({payload,updated_by:currentAdminId,updated_at:new Date().toISOString()})
+   .eq('id',1).select('id,updated_at').maybeSingle();
+  if(error) throw error;
+  if(!updated) throw new Error('没有更新任何记录，请检查管理员权限和 app_config 的 UPDATE 策略');
+  remoteUpdatedAt=updated.updated_at||new Date().toISOString();
+  $('syncStatus').textContent='云端已同步';
+ }catch(e){
+  $('syncStatus').textContent='云端保存失败';
+  toast('云端保存失败：'+e.message);
+ }finally{isSaving=false;}
+}
+$('doLogin').onclick=async()=>{
+ try{
+  const {data:authData,error}=await supabaseClient.auth.signInWithPassword({email:$('authEmail').value.trim(),password:$('authPassword').value});
+  if(error) throw error;
+  const p=await readProfile(authData.user.id);
+  if(p.role!=='admin' || p.status!=='active'){
+   await supabaseClient.auth.signOut();
+   throw new Error('该账号不是有效的管理员账号');
+  }
+  currentAdminId=authData.user.id; isAdmin=true;
+  await loadSharedConfig(false);
+  $('authPanel').classList.add('hidden');
+  setAdminView();
+  toast('管理员登录成功');
+ }catch(e){toast('登录失败：'+e.message);}
+};
 async function bootCloud(){
  try{
+  if(!window.supabase || !window.supabase.createClient) throw new Error('Supabase 客户端加载失败，请检查网络');
   supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  const {data:row,error}=await supabaseClient.from('bankroll_state').select('owner_id,payload').eq('id',1).maybeSingle();
-  if(error)throw error;
-  if(!row){$('syncStatus').textContent='云端尚未初始化';toast('云端数据表中没有记录，请先检查昨天的初始化数据');return}
-  if(row?.payload?.data && row?.payload?.rules){data=row.payload.data;rules={...defaultRules,...row.payload.rules};localStorage.setItem('fb_data',JSON.stringify(data));localStorage.setItem('fb_rules',JSON.stringify(rules));}
+  // Public visitors read only the shared app_config row. RLS must permit anon SELECT.
+  await loadSharedConfig(false);
   cloudReady=true;
   const {data:{session}}=await supabaseClient.auth.getSession();
-  if(session?.user && session.user.id===row.owner_id){isAdmin=true;currentAdminId=session.user.id}
-  setAdminView();$('syncStatus').textContent=isAdmin?'云端管理模式':'云端只读展示';
- }catch(e){$('syncStatus').textContent='云端连接失败';console.error('Supabase init:',e);toast('云端连接失败：'+(e.message||'请检查现有表 bankroll_state 和读取权限'))}
+  if(session?.user){
+   try{
+    const p=await readProfile(session.user.id);
+    if(p.role==='admin' && p.status==='active'){isAdmin=true;currentAdminId=session.user.id;}
+   }catch(e){console.warn('Profile lookup:',e.message);}
+  }
+  setAdminView();
+  $('syncStatus').textContent=isAdmin?'云端管理模式':'云端公开只读';
+  // Poll for changes so every visitor sees the same shared data without requiring a manual refresh.
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer=setInterval(async()=>{
+   if(document.hidden || isSaving) return;
+   try{
+    const {data:row,error}=await supabaseClient.from('app_config').select('payload,updated_at').eq('id',1).single();
+    if(error) throw error;
+    if(row?.updated_at && row.updated_at!==remoteUpdatedAt){
+     const payload=row.payload||{};
+     data={records:Array.isArray(payload.data?.records)?payload.data.records:[],ruleHistory:Array.isArray(payload.data?.ruleHistory)?payload.data.ruleHistory:[]};
+     rules={...defaultRules,...(payload.rules||{})};
+     remoteUpdatedAt=row.updated_at;
+     localStorage.setItem('fb_data',JSON.stringify(data));
+     localStorage.setItem('fb_rules',JSON.stringify(rules));
+     render();
+     $('syncStatus').textContent=isAdmin?'云端管理模式':'数据已更新';
+    }
+   }catch(e){console.warn('Cloud refresh:',e.message);}
+  },15000);
+ }catch(e){
+  cloudReady=false;
+  $('syncStatus').textContent='云端连接失败';
+  console.error('Supabase init:',e);
+  toast('云端连接失败：'+e.message);
+  // Keep the interface visible but clearly mark that shared cloud data is unavailable.
+  render();
+ }
 }
 bootCloud();
-
 </script>
 </body></html>
